@@ -1,4 +1,6 @@
-setwd('/Users/chloek/Lectures/[3-2]/비즈니스모델링2/rproject/BM2_Bicycle_Analysis/')
+CURRENT_WORKING_DIR <- dirname(rstudioapi::getActiveDocumentContext()$path)
+CURRENT_WORKING_DIR
+setwd(paste0(CURRENT_WORKING_DIR, "/data"))
 getwd()
 # 공공자전거 대여소정보
 bike1 <- read.csv( "public_bicycle_rentalshop_2106.csv", header = T, fileEncoding = "euc-kr" )
