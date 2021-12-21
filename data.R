@@ -19,7 +19,7 @@ bike1 <- bike1[-c(1:4), ]
 View( bike1 )
 
 # 데이터 전처리 후 export
-write.csv(bike1, "public_bicycle_rentalshop_2106.csv")
+write.csv(bike1, "public_bicycle_rentalshop.csv", row.names = TRUE,fileEncoding = "euc-kr")
 
 # (2) bike3 데이터의 컬럼명 변경
 View( bike3 )
@@ -37,7 +37,9 @@ summary(bike3)
 View( bike3 )
 
 # 데이터 전처리 후 export
-write.csv(bike3, "public_bicycle_rentalshop_using_2102_2106.csv")
+write.csv(bike3, "public_bicycle_rentalshop_using.csv", row.names = TRUE,fileEncoding = "euc-kr")
+check <- read.csv( "public_bicycle_rentalshop_using.csv", header = T, fileEncoding = "euc-kr")
+View(check)
 
 # (4) bike2 사용시간이 최대 사용시간인 12시간이 넘어가는 데이터 삭제하기
 View( bike2 )
@@ -52,4 +54,4 @@ table( bike2$성별 )
 bike2$성별<-ifelse(bike2$성별=="m"|bike2$성별=="M", "M", ifelse( bike2$성별=="f"|bike2$성별=="F", "F",""))
 
 # 데이터 전처리 후 export
-write.csv(bike2, "public_bicycle_using_time_2106.csv")
+write.csv(bike2, "public_bicycle_using_time.csv", row.names = TRUE,fileEncoding = "euc-kr")
