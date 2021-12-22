@@ -144,6 +144,7 @@ university.df <- university.df %>%
   na.omit()
 
 head(university.df)
+View(university.df)
 
 write.csv(university.df, "서울시자치구별대학교.csv", row.names = TRUE,fileEncoding = "euc-kr")
 

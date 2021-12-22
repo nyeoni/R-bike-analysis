@@ -122,6 +122,12 @@ subway.city
 # 자치구별 지하철 갯수 시각화
 ggplot(data = subway.city, aes(x = city, y= station_cnt)) + geom_bar(stat = "identity")
 
+# 서울시 지하철역 위도 경도 구글 맵에 위치 찍기
+register_google(key='AIzaSyDMBSD61X0HEwJiU2FL9iuCkEBodxfAAfY')
+
+map.seoul <- get_googlemap('seoul', maptype = 'roadmap', zoom = 11)
+ggmap(map.seoul) + geom_point(data = subway.df, aes(x = lon, y = lat), color = 'blue')
+
 # (6) 구별 초등학교+중학교+고등학교 갯수
 
 high.df <- read.csv("서울시자치구별고등학교.csv", header = T, fileEncoding = "euc-kr")
