@@ -77,6 +77,23 @@ data.subway <- raw.subway %>%
 names(data.subway)
 View(data.subway)
 
+# 자치구만 따로 추출
+dim(raw.subway)
+gu.df <- strsplit(raw.subway$역주소, split = " ")
+
+gu.df <- sapply(gu.df, '[[', 2)
+class(gu.df)
+gu.df <- t(t(gu.df))
+gu.df <- as.data.frame(gu.df)
+names(gu.df) <- c("gu")
+gu.df
+  
+# 자치구랑 data.subway join
+data.subway <- bind_cols(data.subway, gu.df)
+head(data.subway)
+View(data.subway)
+
+
 # 구글 API 키 등록 및 위도 경도 데이터 받아오기
 register_google(key='AIzaSyDMBSD61X0HEwJiU2FL9iuCkEBodxfAAfY')
 coordinate = data.subway$address %>% enc2utf8() %>% geocode()
