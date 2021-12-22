@@ -4,9 +4,12 @@ setwd(paste0(CURRENT_WORKING_DIR, "/data"))
 getwd()
 
 # (1) 서울시 전체 / 구별 가장 적은/많은 대여소 분석
+
+# 필요패키지
 install.packages("dplyr")
 library(dplyr)
 
+# raw data 불러오기
 rent.location.df <- read.csv("public_bicycle_rentalshop_using.csv", header = T, fileEncoding = "euc-kr")
 View(rent.location.df)
 
