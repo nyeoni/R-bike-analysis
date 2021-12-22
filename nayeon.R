@@ -95,7 +95,7 @@ View(data.subway)
 
 # 구글 API 키 등록 및 위도 경도 데이터 받아오기
 register_google(key='AIzaSyDMBSD61X0HEwJiU2FL9iuCkEBodxfAAfY')
-coordinate = data.subway$address %>% enc2utf8() %>% geocode()
+# coordinate = data.subway$address %>% enc2utf8() %>% geocode()
 
 View(coordinate)
 subway.lon.lat <- bind_cols(data.subway, coordinate)
