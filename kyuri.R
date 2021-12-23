@@ -1,9 +1,9 @@
 # 공공자전거 대여소정보
-bike1 <- read.csv( "data/public_bicycle_rentalshop_2106.csv" )
+bike1 <- read.csv( "public_bicycle_rentalshop_2106.csv" )
 # 공공자전거 이용정보( 시간대별 )
-bike2 <- read.csv( "data/public_bicycle_using_time_2106.csv")
+bike2 <- read.csv( "public_bicycle_using_time_2106.csv")
 # 공공자전거 대여소별 이용정보
-bike3 <- read.csv( "data/public_bicycle_rentalshop_using_2102_2106.csv" )
+bike3 <- read.csv( "public_bicycle_rentalshop_using_2102_2106.csv" )
 
 # 1. 데이터 전처리
 # (1)  데이터의 컬럼명 변경
@@ -77,6 +77,10 @@ bike2_afternoon <- bike2_using_pertime %>%
   filter( rtime>=10 & rtime < 15 ) %>%
   group_by( rno ) %>%
   summarise( rent_afternoon = sum(rent) )
+bike2_morning <- bike2_using_pertime %>%
+  filter( rtime>=6 & rtime < 11 ) %>%
+  group_by( rno ) %>%
+  summarise( rent_morning = sum(rent) )
 bike2_evening <- bike2_using_pertime %>%
   filter( rtime>=14 & rtime < 19 ) %>%
   group_by( rno ) %>%
