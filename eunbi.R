@@ -21,14 +21,15 @@ names( bike2 ) <- bike2_newcolname
 # 필요한 패키지 
 install.packages("tidyverse")
 install.packages("gains")
+install.packages("plyr")
 library(gains)
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
 library(caret)
 library(e1071)
-install.packages("plyr")
 library(plyr)
+library(forecast)
 
 # 연령대별 공공자전거 대여건수순으로 정렬해 상관관계 찾기
 age_rent <- bike2 %>%
@@ -156,7 +157,7 @@ lines(c(0, sum(valid.df$subway=="yes"))~c(0,dim(valid.df)[1]), lty=2)
 bike1_stop <- bike1 %>%
   filter(!is.na(city)) %>%
   group_by(city) %>%
-  summarise(n=n())
+  dplyr::summarise(n=n())
 bike1_stop
 # 최종 데이터: bike1_stop
 
@@ -168,7 +169,7 @@ View(station)
 station_num <- station %>%
   filter(!is.na(city)) %>%
   group_by(city) %>%
-  summarise(sum_station = sum(X))
+  dplyr::summarise(n=n())
 station_num
 # 최종 데이터: station_num
 
@@ -184,7 +185,7 @@ head(school.df)
 
 school.city <- school.df %>%
   group_by(city) %>%
-  summarise(school_cnt = n())
+  dplyr::summarise(school_cnt = n())
 school.city
 # 최종 데이터: school.city
 
@@ -195,27 +196,27 @@ head(university.df)
 
 university.city <- university.df %>%
   group_by(city) %>%
-  summarise(university_cnt = n())
+  dplyr::summarise(university_cnt = n())
 university.city
 # 최종 데이터: university.city
 
 # (5) 구별 대여 건수 총합
 
 bike1_sub <- bike1[,1:3]
-bike2_sub <- bike2[, c(3,4,7,8)]
+bike2_sub <- bike2[, c(4,5,8,9)]
 
 bike_join <- full_join(bike2_sub, bike1_sub, by = "rno")
 bike_join<- na.omit(bike_join)
+View(bike_join)
 
 # calculate sum rent for city 
 region <- bike_join %>%
-  filter(!is.na(rent)) %>%
   group_by(city) %>%
-  summarise(sum_rent = sum(rent))
+  dplyr::summarise(sum_rent = sum(rent))
 region
 # 최종 데이터 : region
 
-########################## 다중 선형 회귀 분석 모델 #####################
+########################## 다중 선형 회귀 분석 모델1 #####################
 #########################################################################
 # (1) 컬럼명 만들기
 fname <- c("city", "stopCnt", "stationCnt", "schoolCnt", "universityCnt","rentCnt" )
@@ -252,7 +253,6 @@ options(scipen=999)
 summary(bike.lm)
 
 # (5) validation set for accuracy
-library(forecast)
 
 bike.lm.pred <- predict(bike.lm, valid.df)
 options(scipen=999, digits = 0)
@@ -271,7 +271,80 @@ all.residuals <- valid.df$rentCnt - bike.lm.pred
 hist(all.residuals, breaks = 25, xlab = "Residuals", main = "")
 
 # (6) new data test
-new.df <- data.frame(stationCnt = 1000 , universityCnt = 2, schoolCnt = 100)
+new.df <- data.frame(stationCnt = 6 , universityCnt = 3, schoolCnt = 40)
 new.pred <- predict(bike.lm, new.df)
 options(scipen=999, digits = 0)
 new.pred
+
+########################## 다중 선형 회귀 분석 모델 2 #####################
+#########################################################################
+
+# 사업체수 데이터 불러오기기
+library(readr)
+seoul_enterprise <- read_csv("seoul_enterprise.csv")
+View(seoul_enterprise)
+
+ent_names <- c("year","city","population")
+names(seoul_enterprise) <- ent_names
+# 1행 1열 제거
+seoul_enterprise <- seoul_enterprise[-1,-1]
+
+
+# (1) 컬럼명 만들기
+fname <- c("city", "stopCnt", "stationCnt", "schoolCnt", "universityCnt","rentCnt", "population" )
+
+# (2) 최종 데이터 하나로 합치기
+# // 구별 자전거 대여소 개수, 지하철역 개수, 초중고 개수, 대학교 개수, 대여 건수, 종사자 수
+bike1_stop
+station_num
+school.city
+university.city
+region
+seoul_enterprise
+
+# // city 기준으로 join
+full <- join_all(list(bike1_stop, station_num, school.city, university.city, region, seoul_enterprise) , by = "city", type="left")
+head(full)
+table(is.na(full))
+
+# // 컬럼명 바꾸기
+names(full) <- fname
+
+# // NA 제거
+full <- na.omit(full)
+# selected_var <- c(1,3,4,5,6,7)
+
+# (3) partitioning for training and validation
+set.seed(1)
+train.index <- sample(c(1:dim(full)[1]), dim(full)[1]*0.6)
+train.df <- full[train.index,]
+valid.df <- full[-train.index,]
+
+############################################# 컬럼을 추출해서 하는 게 맞는 것인가 #########################################
+train.df <- full[train.index,selected_var]
+valid.df <- full[-train.index,selected_var]
+############################################# 컬럼을 추출해서 하는 게 맞는 것인가 #########################################
+
+# (4) 다중 선형 회귀 모델 with training set
+bike.lm <- lm(rentCnt ~ stationCnt + universityCnt + schoolCnt + population, data = train.df)
+options(scipen=999)
+# // show the output
+summary(bike.lm)
+
+# (5) validation set for accuracy
+
+bike.lm.pred <- predict(bike.lm, valid.df)
+options(scipen=999, digits = 0)
+
+# // check the residuals
+some.residuals <- valid.df$rentCnt[1:5] - bike.lm.pred[1:5]
+
+# // df for residuals
+data.frame("Predicted" = bike.lm.pred[1:5], "Acutal" = valid.df$rentCnt[1:5], "Residual" = some.residuals)
+options(scipen =999, digits = 3)
+# // check the accuracy
+accuracy(bike.lm.pred, valid.df$rentCnt)
+
+# // show all residuals with visualization
+all.residuals <- valid.df$rentCnt - bike.lm.pred
+hist(all.residuals, breaks = 25, xlab = "Residuals", main = "")
