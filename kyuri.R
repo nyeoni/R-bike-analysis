@@ -111,4 +111,19 @@ m <- as.matrix(bike2_for_heatmap[, -1])
 rownames(m) <- bike2_for_heatmap$rname
 heatmap(t(head(m,10)),scale = "none")
 
+
+# 꺾은선그래프
+bike2_head <- head(bike2_using_alltime,5)
+bike2_graph <- inner_join(bike2_head,bike2_using_pertime,by="rno" )
+bike2_graph <- inner_join( bike1_esential, bike2_graph, by="rno" )
+bike2_graph <- bike2_graph[,c(2,8,9)]
+
+ggplot(data=bike2_graph, aes(x=rtime, y=rent, colour=rname, group=rname)) + 
+  geom_line() + 
+  geom_point(size=3) +
+  ggtitle("이용건수 Top5의 시간대별 이용현황")
+
+View( bike2_graph )
+
+
         
