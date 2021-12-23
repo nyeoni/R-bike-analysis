@@ -59,7 +59,7 @@ View(bike1_sub)
 bike2_sub <- bike2[, c(3,4,7,8)]
 View(bike2_sub)
 
-bike_join <- full_join(bike2_sub, bike1_sub, by = "rno")
+bike_join <- inner_join(bike2_sub, bike1_sub, by = "rno")
 View(bike_join)
 
 # 지역으로 분류하기 지역별 연령대 분포 파악하기

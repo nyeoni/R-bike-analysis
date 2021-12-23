@@ -20,31 +20,27 @@ setwd(paste0(CURRENT_WORKING_DIR, "/data"))
 getwd()
 
 # 전처리된 가공 데이터 불러오기
-bike1 <-  read.csv("public_bicycle_rentalshop_using.csv", header = T, fileEncoding = "euc-kr")
 bike2 <- read.csv("public_bicycle_using_time.csv", header = T, fileEncoding = "euc-kr")
-bike3 <- read.csv("public_bicycle_rentalshop_using.csv", header = T, fileEncoding = "euc-kr")
+bike3 <- read.csv( "public_bicycle_rentalshop.csv" , header = T, fileEncoding = "euc-kr")
 
-View(bike1)
-View(bike2)
 View(bike3)
-
-bike1_newcolname <- c("rno", "city", "rname", "rdate", "rent")
-names( bike1 ) <- bike1_newcolname
-names( bike3 ) <- bike1_newcolname
+View(bike2)
 
 bike2_newcolname <- c("idnex","rdate", "rtime", "rno", "rname", "rcode", "sex", "age", "rent", "exercise","co2", "distance", "utime" )
 names( bike2 ) <- bike2_newcolname
 
+bike3_newcolname <- c("index", "rno","rname", "city", "address", "latitude", "longitude", "setup", "lcd", "qr", "operation")
+names( bike3 ) <- bike3_newcolname
 
 ############## 다중 선형 회귀 모델 테스트를 위한 데이터 #####################
 
 # (1) 구별 공공자전거 대여소 개수
-bike1_stop <- bike1 %>%
-  filter(!is.na(city)) %>%
+bike3_stop <- bike3 %>%
   group_by(city) %>%
   dplyr::summarise(n=n())
-bike1_stop
-# 최종 데이터: bike1_stop
+bike3_stop
+
+# 최종 데이터: bike3_stop
 
 
 # (2) 구별 지하철 역 수
@@ -87,10 +83,13 @@ university.city
 
 # (5) 구별 대여 건수 총합
 
-bike1_sub <- bike1[,1:3]
 bike2_sub <- bike2[, c(4,5,8,9)]
+bike3_sub <- bike3[,c(2,3,4)]
 
-bike_join <- full_join(bike2_sub, bike1_sub, by = "rno")
+head(bike3_sub)
+head(bike2_sub)
+
+bike_join <- full_join(bike2_sub, bike3_sub, by = "rno")
 bike_join<- na.omit(bike_join)
 View(bike_join)
 
@@ -108,14 +107,14 @@ fname <- c("city", "stopCnt", "stationCnt", "schoolCnt", "universityCnt","rentCn
 
 # (2) 최종 데이터 하나로 합치기
 # // 구별 자전거 대여소 개수, 지하철역 개수, 초중고 개수, 대학교 개수, 대여 건수
-bike1_stop
+bike3_stop
 station_num
 school.city
 university.city
 region
 
 # // city 기준으로 join
-full <- join_all(list(bike1_stop, station_num, school.city, university.city, region) , by = "city", type="left")
+full <- join_all(list(bike3_stop, station_num, school.city, university.city, region) , by = "city", type="left")
 head(full)
 table(is.na(full))
 View(full)
@@ -181,7 +180,7 @@ fname <- c("city", "stopCnt", "stationCnt", "schoolCnt", "universityCnt","rentCn
 
 # (2) 최종 데이터 하나로 합치기
 # // 구별 자전거 대여소 개수, 지하철역 개수, 초중고 개수, 대학교 개수, 대여 건수, 종사자 수
-bike1_stop
+bike3_stop
 station_num
 school.city
 university.city
@@ -189,7 +188,7 @@ region
 seoul_enterprise
 
 # // city 기준으로 join
-full <- join_all(list(bike1_stop, station_num, school.city, university.city, region, seoul_enterprise) , by = "city", type="left")
+full <- join_all(list(bike3_stop, station_num, school.city, university.city, region, seoul_enterprise) , by = "city", type="left")
 head(full)
 table(is.na(full))
 
