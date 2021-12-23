@@ -125,5 +125,31 @@ ggplot(data=bike2_graph, aes(x=rtime, y=rent, colour=rname, group=rname)) +
 
 View( bike2_graph )
 
+# 자치구별 꺾은선 그래프
+bike2_city_graph <- inner_join(bike2_using_alltime,bike2_using_pertime,by="rno" )
+bike2_city_graph <- inner_join( bike1_esential, bike2_city_graph, by="rno" )
+View(bike2_city_graph)
 
+region <- bike2_city_graph %>%
+  filter(!is.na(rent)) %>%
+  group_by(city) %>%
+  summarise(sum_rent = sum(rent)) %>%
+  arrange(desc(sum_rent))
+region <- head(region,10)
+region
+
+bike2_city_graph <- bike2_city_graph %>%
+  group_by( city, rtime ) %>%
+  summarise( rent = sum(rent) )
+
+bike2_city_graph <- inner_join( bike2_city_graph, region, by="city")
+
+# 전체 이용건수가 많은 순으로 정렬
+bike2_city_graph <- bike2_city_graph[order(-bike2_city_graph$sum_rent,bike2_city_graph$rtime),]
+View(bike2_city_graph)
+
+ggplot(data=bike2_city_graph, aes(x=rtime, y=rent, colour=city, group=city)) + 
+  geom_line() + 
+  geom_point(size=3) +
+  ggtitle("이용건수 Top10의 자치구별 + 시간대별 이용현황")
         
