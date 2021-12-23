@@ -28,8 +28,9 @@ View(bike1)
 View(bike2)
 View(bike3)
 
-bike1_newcolname <- c("rno", "rname", "city", "address", "latitude", "longitude", "setup", "lcd", "qr", "operation")
+bike1_newcolname <- c("rno", "city", "rname", "rdate", "rent")
 names( bike1 ) <- bike1_newcolname
+names( bike3 ) <- bike1_newcolname
 
 bike2_newcolname <- c("idnex","rdate", "rtime", "rno", "rname", "rcode", "sex", "age", "rent", "exercise","co2", "distance", "utime" )
 names( bike2 ) <- bike2_newcolname
