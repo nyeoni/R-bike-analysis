@@ -1,9 +1,9 @@
 # 공공자전거 대여소정보
-bike1 <- read.csv( "public_bicycle_rentalshop_2106.csv" )
+bike1 <- read.csv( "data/public_bicycle_rentalshop_2106.csv" )
 # 공공자전거 이용정보( 시간대별 )
-bike2 <- read.csv( "public_bicycle_using_time_2106.csv")
+bike2 <- read.csv( "data/public_bicycle_using_time_2106.csv")
 # 공공자전거 대여소별 이용정보
-bike3 <- read.csv( "public_bicycle_rentalshop_using_2102_2106.csv" )
+bike3 <- read.csv( "data/public_bicycle_rentalshop_using_2102_2106.csv" )
 
 # 1. 데이터 전처리
 # (1)  데이터의 컬럼명 변경
@@ -59,6 +59,12 @@ View( bike2_using_pertime )
 # 오후( 14~18 ) evening
 # 밤  ( 18~24 ) night
 
+bike2_using_alltime <- bike2_using_pertime %>%
+  group_by( rno ) %>%
+  summarise( rent_allday = sum(rent) ) %>%
+  arrange(desc(rent_allday))
+bike2_using_alltime
+
 bike2_dawn <- bike2_using_pertime %>%
   filter( rtime>=0 & rtime < 7 ) %>%
   group_by( rno ) %>%
@@ -84,11 +90,25 @@ bike2_day <- inner_join( bike2_dawn, bike2_morning, by="rno" )
 bike2_day <- inner_join( bike2_day, bike2_afternoon, by="rno" )
 bike2_day <- inner_join( bike2_day, bike2_evening, by="rno" )
 bike2_day <- inner_join( bike2_day, bike2_night, by="rno" )
+bike2_day <- inner_join( bike2_day, bike2_using_alltime, by="rno" )
 
 # 대여소번호(rno), 자치구(city), 대여소명(rname), 주소(address), 위도(latitude), 경도(longitude)
 bike1_esential <- bike1[,c(1:6)] 
 bike_full <- inner_join( bike1_esential, bike2_day, by="rno" )
+# 전체 이용건수가 많은 순으로 정렬
+bike_full <- bike_full[order(-bike_full$rent_allday),]
 View( bike_full )
+View( bike2_day )
 
+bike2_for_heatmap <- bike_full[,c(2,8,11)]
+head(bike2_for_heatmap,10)
 
+install.packages("ggplot2")
+library( ggplot2 )
 
+heatmap(as.matrix(bike2_for_heatmap[, -1]))
+m <- as.matrix(bike2_for_heatmap[, -1])
+rownames(m) <- bike2_for_heatmap$rname
+heatmap(t(head(m,10)),scale = "none")
+
+        
