@@ -1,5 +1,8 @@
 ############################################# 나이브 베이즈 알고리즘 #######################################################
 ###################################################
+library(gains)
+library(tidyverse)
+
 # 데이터 전처리
 
 CURRENT_WORKING_DIR <- dirname(rstudioapi::getActiveDocumentContext()$path)
@@ -64,8 +67,8 @@ table(rental.stop.subway$subway)
 
 # create training and validation sets
 train.index <- sample(c(1:dim(rental.stop.subway)[1]), dim(rental.stop.subway)[1]*0.6)
-train.df <- rental.stop.subway[train.index,-c(1,4,5)]
-valid.df <- rental.stop.subway[-train.index,-c(1,4,5)]
+train.df <- rental.stop.subway[train.index,-c(1,2,4,5)]
+valid.df <- rental.stop.subway[-train.index,-c(1,2,4,5)]
 train.df
 
 # run naive bayes subway근처인가? 대다수가 no로 나옴
