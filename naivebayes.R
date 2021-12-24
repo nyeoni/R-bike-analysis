@@ -60,7 +60,6 @@ rental.bike <- inner_join( rental.stop, bike.use.all, by="rno")
 
 rental.stop.subway <- rental.bike %>%
   mutate(subway = ifelse(str_detect(rname, '출구') == TRUE, 'yes', 'no'))
-rental.stop.subway$sum <- ifelse(rental.stop.subway$sum> mean(rental.stop.subway$sum),1,0)
 
 View(rental.stop.subway)
 table(rental.stop.subway$subway)
@@ -101,3 +100,7 @@ confusionMatrix(factor(pred.class), factor(valid.df$subway))
 gain <- gains::gains(ifelse(valid.df$subway == "no", 1, 0), pred.prob[,1], groups = 100)
 plot(c(0,gain$cume.pct.of.total*sum(valid.df$subway=="no"))~c(0,gain$cume.obs), xlab = "# cases", ylab="Cumulative", main="")
 lines(c(0, sum(valid.df$subway=="no"))~c(0,dim(valid.df)[1]), lty=2)
+
+gain <- gains::gains(ifelse(valid.df$subway == "yes", 1, 0), pred.prob[,1], groups = 100)
+plot(c(0,gain$cume.pct.of.total*sum(valid.df$subway=="yes"))~c(0,gain$cume.obs), xlab = "# cases", ylab="Cumulative", main="")
+lines(c(0, sum(valid.df$subway=="yes"))~c(0,dim(valid.df)[1]), lty=2)
